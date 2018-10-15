@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html><head>
+<title>500 Internal Server Error</title>
+</head><body>
+<h1>Internal Server Error</h1>
+<p>The server encountered an internal error or
+misconfiguration and was unable to complete
+your request.</p>
+<p>Please contact the server administrator,
+ [no address given] and inform them of the time the error occurred,
+and anything you might have done that may have
+caused the error.</p>
+<p>More information about this error may be available
+in the server error log.</p>
+</body></html>
+<?xml version="1.0" encoding="utf-8"?>
+<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">
+  <s:exception>Exception</s:exception>
+  <s:message>Encryption library: Decryption (symmetric) of content failed</s:message>
+  <s:sabredav-version>1.7.6</s:sabredav-version>
+</d:error>
+<?xml version="1.0" encoding="utf-8"?>
+<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">
+  <s:exception>Exception</s:exception>
+  <s:message>Encryption library: Decryption (symmetric) of content failed</s:message>
+  <s:sabredav-version>1.7.6</s:sabredav-version>
+</d:error>
+<?xml version="1.0" encoding="utf-8"?>
+<d:error xmlns:d="DAV:" xmlns:s="http://sabredav.org/ns">
+  <s:exception>Exception</s:exception>
+  <s:message>Encryption library: Decryption (symmetric) of content failed</s:message>
+  <s:sabredav-version>1.7.6</s:sabredav-version>
+</d:error>

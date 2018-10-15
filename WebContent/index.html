@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>MapQuest demo</title>
+
+	<meta name="viewport" content="width=device-width, user-scalable=no">
+
+	<link rel="stylesheet" type="text/css" href="./css/style.css"/>
+
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="./js/OpenLayers-2.13.1/OpenLayers.js"></script>
+	
+	<script src="./js/dpm.js"></script>
+	<script src="./js/utils.js"></script>
+	<script src="./js/map.js"></script>
+	<script src="./js/processing.js"></script>
+	
+</head>
+
+<body>
+	<div id="Header">
+		<div id="RoutePointsSelector">
+			<input id="fromPlace" type="text">
+			<div id="Waypoints">
+				<input class="waypoint" type="text">
+			</div>
+			<button id="AddWaypointButton">+</button>
+			<span id="buttonsContainer">
+				<button id="CalculateRouteButton">Ruta</button>
+			</span>
+		</div>
+		<span id="routeInfo"></span>
+		<div id="GetFilesContainer">
+			<input id="setRouteInput" type="file"/>			
+			<button id="getRouteButton">Descargar ruta</button>
+			<a href="#" id="GetRouteFileLink"></a>			
+		</div>		
+	</div>
+	<div id="narrative"></div>
+	<div id="MainMapContainer">		
+		<div id="MainMap"></div>
+	</div>
+</body>
+</html>
