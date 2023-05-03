@@ -1,18 +1,8 @@
 'use strict';
 
-// var DIRECTIONS_URL = 'http://open.mapquestapi.com/directions/v2/route?key=YOUR_KEY_HERE&ambiguities=ignore' + 
-	// '&from=FROM_PLACE&to=TO_PLACE&callback=renderDirections&unit=k&routeType=fastest&locale=es_ES&avoids=Toll Road' + 
-	// '&narrativeType=microformat&enhancedNarrative=false&doReverseGeocoding=false&destinationManeuverDisplay=false&manMaps=true';
-var DIRECTIONS_URL = 'http://open.mapquestapi.com/directions/v2/route';
-	
-// var GUIDANCE_URL = 'http://open.mapquestapi.com/guidance/v1/route?key=YOUR_KEY_HERE&callback=renderGuidance'+
-	// '&avoids=Toll road&outFormat=json&routeType=fastest&narrativeType=none&shapeFormat=raw'+
-	// '&generalize=0&generalizeAfter=500&direction=-1&avoidManeuverDuration=-1&unit=k&'+
-	// 'from=FROM_PLACE&to=TO_PLACE&fishbone=false';
-
-var GUIDANCE_URL = 'http://open.mapquestapi.com/guidance/v2/route';
-	
-var APP_KEY = 'Fmjtd%7Cluubn16b2q%2C2l%3Do5-90axl6';
+var DIRECTIONS_URL = 'https://www.mapquestapi.com/directions/v2/route';
+var SHAPE_URL = 'https://www.mapquestapi.com/directions/v2/routeshape';
+var APP_KEY = 'XIofZDl1wMD4N30csprJrNBW976eAgwM';
 
 var map = null;
 var route = null;
@@ -40,64 +30,44 @@ function onCalculateRouteButtonClick()
 	
 	if(fromPlace)
 	{
-		var directionOptions={
-			locations: [fromPlace],
-			options:{
-				ambiguities: 'ignore',
-				unit: 'k',
-				routeType: 'fastest',
-				locale: 'es_ES',
-				avoids: ['Toll Road'],
-				narrativeType: 'microformat',
-				enhancedNarrative: false,
-				doReverseGeocoding: false,
-				destinationManeuverDisplay: false,
-				manMaps: true
-			}
-		};
-		
-		var guidanceOptions={
-			locations: [fromPlace],
-			options:{
-				avoids: ['Toll road'],
-				outFormat: 'json',
-				routeType: 'fastest',
-				narrativeType: 'none',
-				shapeFormat: 'raw',
-				generalize: 0,
-				generalizeAfter: 500,
-				direction: -1,
-				avoidManeuverDuration: -1,
-				unit: 'k',			
-				fishbone: false
-			}
-		};
-		
-		$(".waypoint").each(function()
-		{
-			var toPlace = $(this).val().trim();
-			if(toPlace)
-			{
-				directionOptions.locations.push(toPlace);
-				guidanceOptions.locations.push(toPlace);
-			}
-		});
-		
-		sendRequest(DIRECTIONS_URL, directionOptions, renderDirections);
-		sendRequest(GUIDANCE_URL, guidanceOptions, renderGuidance);
+		requestDirections(fromPlace);
 	}	
 };
 
-function sendRequest(requestUrl, options, callback)
+function requestDirections(fromPlace)
 {
-	var url = requestUrl + '?key={0}&outFormat=json&inFormat=json&json={1}'.format(APP_KEY, JSON.stringify(options));
+    var options={
+		locations: [fromPlace],
+		options:{
+			ambiguities: 'ignore',
+			unit: 'k',
+			routeType: 'fastest',
+			locale: 'es_ES',
+			avoids: ['Toll Road'],
+			narrativeType: 'microformat',
+			enhancedNarrative: false,
+			doReverseGeocoding: false,
+			destinationManeuverDisplay: false,
+			manMaps: true
+		}
+	};
+	
+	$(".waypoint").each(function()
+	{
+		var toPlace = $(this).val().trim();
+		if(toPlace)
+		{
+			options.locations.push(toPlace);
+		}
+	});
+
+	var url = DIRECTIONS_URL + '?key={0}&outFormat=json&inFormat=json&json={1}'.format(APP_KEY, JSON.stringify(options));
 	
 	$.ajax({
 		url: url,
 		dataType: 'jsonp',
 		crossDomain: true,
-		// data: options,
-		success: callback,
+		success: renderDirections,
 		error: function(data) 
 		{ 
 			alert( 'error occurred: ' + JSON.stringify(options) );
@@ -108,10 +78,6 @@ function sendRequest(requestUrl, options, callback)
 function renderDirections(response) 
 {
     var legs = response.route.legs;
-    // var html = '';
-    // var i = 0;
-    // var j = 0;
-    // var maneuver;
 	var directions = [];
     
 	if(legs)
@@ -126,9 +92,6 @@ function renderDirections(response)
 				var lat = maneuver.startPoint.lat;
 				
 				var html = '<div class="description">';
-				// if (maneuver.iconUrl) {
-					// html += '<img src="' + maneuver.iconUrl + '">  '; 
-				// } 
 				
 				maneuver.signs.forEach(function(sign){
 					if (sign.url) {
@@ -143,7 +106,7 @@ function renderDirections(response)
 				
 				map.addManeuver(lon, lat, html, maneuver.iconUrl);
 				
-				//Eliminar los tags de HTML de la narración
+				//Eliminar los tags de HTML de la narraciÃ³n
 				var cleanedNarrative = narrative.replace(/<\/?[^>]+(>|$)/g, "");
 				directions.push({
 					_key: "gp" + index,
@@ -166,6 +129,24 @@ function renderDirections(response)
 		$('#routeInfo').html('<span class="dataHead">Distancia</span><span>'+ route._totalDistance.toFixed(0) +
 			' km</span><span class="dataHead">Tiempo est.</span><span>'+ timeFormatted + '</span>');	
 		$('#routeInfo').show();
+		
+		var shapeOptions={
+			locations: [fromPlace],
+			options:{
+				avoids: ['Toll road'],
+				outFormat: 'json',
+				routeType: 'fastest',
+				narrativeType: 'none',
+				shapeFormat: 'raw',
+				generalize: 0,
+				generalizeAfter: 500,
+				direction: -1,
+				avoidManeuverDuration: -1,
+				unit: 'k',			
+				fishbone: false
+			}
+		};
+		requestShape(response.route.sessionId);
 	}
 	else
 	{
@@ -173,22 +154,38 @@ function renderDirections(response)
 	}
 }
 
-function renderGuidance(response)
+function requestShape(sessionId)
+{
+    var url = SHAPE_URL + '?key={0}&sessionId={1}&fullShape=true'.format(APP_KEY, sessionId);
+	
+    $.ajax({
+	    url: url,
+	    dataType: 'jsonp',
+	    crossDomain: true,
+	    success: renderShape,
+	    error: function(data) 
+	    { 
+		    alert( 'error occurred: ' + JSON.stringify(options) );
+	    }
+    });
+}
+
+function renderShape(response)
 {
 	var locations = [];
 	
-    if(response.guidance.shapePoints)
+    if(response.route.shape.shapePoints)
     {
         var lat = 0;
         var lon = 0;
 		var indexLocations = 0;
-        var coordComponents = response.guidance.shapePoints;
+        var coordComponents = response.route.shape.shapePoints;
 		
 		for(var i = 0; i < coordComponents.length; i++){
 		    if(i%2 !== 0){
 	                lon = coordComponents[i];
-					//Añadir 1 de cada N y siempre el último punto
-					//Así la ruta es más "ligera"
+					//AÃ±adir 1 de cada N y siempre el Ãºltimo punto
+					//AsÃ­ la ruta es mÃ¡s "ligera"
 					if(indexLocations % 8 === 0 || i === (coordComponents.length - 1)){
 						locations.push([lon, lat]);
 					}
@@ -215,8 +212,6 @@ function prepareGuidingFile(locations)
 		locations.forEach(function(location){
 			route._wayPoints.push([location[1], location[0]]);
 		});
-		
-		//dpm.utils.prepareForDownloadFile("GetGuidingFileLink", "guide.txt", text);
 	}
 }
 
@@ -226,9 +221,6 @@ function prepareDirectionsFile(directions)
 	if(directions){		
 		route._guidancePoints = route._guidancePoints.concat(directions);
 	}
-
-	// var json = JSON.stringify({directions: directions});
-	// dpm.utils.prepareForDownloadFile("GetDirectionsFileLink", "directions.txt", json);
 }
 
 function setRoute(route)
@@ -240,7 +232,7 @@ function setRoute(route)
 		//Procesar puntos de ruta
 		if(route._wayPoints && route._wayPoints.length)
 		{
-			//En la ruta las coordenadas están como [lat, lon], pero el mapa usa el formato [lon, lat].
+			//En la ruta las coordenadas estï¿½n como [lat, lon], pero el mapa usa el formato [lon, lat].
 			//Hay que dar la vuelta a los puntos.
 			var points = [];
 			route._wayPoints.forEach(function(point)
