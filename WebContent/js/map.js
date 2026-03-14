@@ -61,12 +61,18 @@ dpm.MapCto.prototype.loadMap = function()
 	});
 
 	//Añadir capa de cartografía
-	this._map.addLayer(new OpenLayers.Layer.OSM("osm"
+	this._map.addLayer(new OpenLayers.Layer.OSM("osm",
 	[
 		"https://a.tile.openstreetmap.org/${z}/${x}/${y}.png",
 		"https://b.tile.openstreetmap.org/${z}/${x}/${y}.png",
 		"https://c.tile.openstreetmap.org/${z}/${x}/${y}.png"
-	]));
+	],
+	{
+	    attribution: "© OpenStreetMap contributors",
+        tileOptions: {
+            crossOriginKeyword: null
+        }
+	}));
 	//Añadir capa de rutas
 	this._lineLayer = new OpenLayers.Layer.Vector("Route"); 
 	this._map.addLayer(this._lineLayer);                    
