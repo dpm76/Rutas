@@ -1,0 +1,36 @@
+#!/bin/bash
+# Script para detener el servidor local de desarrollo
+
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PID_FILE="$PROJECT_DIR/.server.pid"
+
+if [ ! -f "$PID_FILE" ]; then
+    echo "No se encontró el archivo de PID ($PID_FILE). ¿El servidor está apagado?"
+    exit 1
+fi
+
+PID=$(cat "$PID_FILE")
+
+if ps -p "$PID" > /dev/null 2>&1; then
+    echo "Deteniendo el servidor con PID $PID..."
+    kill "$PID"
+    
+    # Esperar un momento para verificar que se detuvo
+    for i in {1..5}; do
+        if ! ps -p "$PID" > /dev/null 2>&1; then
+            break
+        fi
+        sleep 0.5
+    done
+    
+    if ps -p "$PID" > /dev/null 2>&1; then
+        echo "El servidor no respondió a la detención estándar. Forzando cierre..."
+        kill -9 "$PID"
+    fi
+    
+    echo "Servidor detenido correctamente."
+else
+    echo "El servidor con PID $PID no se encuentra en ejecución."
+fi
+
+rm "$PID_FILE"

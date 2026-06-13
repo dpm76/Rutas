@@ -30,6 +30,11 @@ dpm.MapCto.prototype._transformToSphM = function(wgsCoords) {
 
 dpm.MapCto.prototype.loadMap = function()
 {
+	// Asegurar que las imágenes de OpenLayers tengan la política de referrer correcta
+	if (OpenLayers.Tile && OpenLayers.Tile.Image && OpenLayers.Tile.Image.IMAGE) {
+		OpenLayers.Tile.Image.IMAGE.referrerPolicy = "no-referrer-when-downgrade";
+	}
+
 	this._map = new OpenLayers.Map("MainMap",
 	{ 
 		controls: [
@@ -68,7 +73,7 @@ dpm.MapCto.prototype.loadMap = function()
 		"https://c.tile.openstreetmap.org/${z}/${x}/${y}.png"
 	],
 	{
-	    attribution: "© OpenStreetMap contributors",
+	    attribution: "Â© OpenStreetMap contributors",
         tileOptions: {
             crossOriginKeyword: null
         }

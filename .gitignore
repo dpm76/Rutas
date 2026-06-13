@@ -54,3 +54,7 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
+
+# Development server files
+.server.pid
+server.log

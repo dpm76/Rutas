@@ -1,0 +1,56 @@
+#!/bin/bash
+# Script para iniciar el servidor local de desarrollo
+
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WEBCONTENT_DIR="$PROJECT_DIR/WebContent"
+PID_FILE="$PROJECT_DIR/.server.pid"
+LOG_FILE="$PROJECT_DIR/server.log"
+
+show_help() {
+    echo "Usage: ./app-init [port]"
+    echo "Starts the local development web server."
+    echo ""
+    echo "Options:"
+    echo "  -h, --help    Show this help message and exit"
+    echo "  [port]        Port to run the server on (default: 8000)"
+    exit 0
+}
+
+# Check for help flags
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    show_help
+fi
+
+PORT=8000
+if [ -n "$1" ]; then
+    if [[ "$1" =~ ^[0-9]+$ ]]; then
+        PORT=$1
+    else
+        echo "Error: Invalid port number '$1'"
+        show_help
+    fi
+fi
+
+if [ -f "$PID_FILE" ]; then
+    PID=$(cat "$PID_FILE")
+    if ps -p "$PID" > /dev/null 2>&1; then
+        echo "El servidor ya está ejecutándose con el PID $PID en http://localhost:$PORT"
+        exit 0
+    else
+        rm "$PID_FILE"
+    fi
+fi
+
+# Verificar si el puerto ya está en uso
+if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
+    echo "Error: El puerto $PORT ya está en uso por otro proceso."
+    exit 1
+fi
+
+echo "Iniciando servidor de desarrollo en http://localhost:$PORT..."
+cd "$WEBCONTENT_DIR" || exit 1
+nohup python3 -m http.server $PORT > "$LOG_FILE" 2>&1 &
+SERVER_PID=$!
+
+echo $SERVER_PID > "$PID_FILE"
+echo "Servidor iniciado con PID $SERVER_PID. Logs en $LOG_FILE"
