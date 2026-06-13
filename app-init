@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script para iniciar el servidor local de desarrollo
+# Script to start the local development server
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WEBCONTENT_DIR="$PROJECT_DIR/WebContent"
@@ -34,23 +34,23 @@ fi
 if [ -f "$PID_FILE" ]; then
     PID=$(cat "$PID_FILE")
     if ps -p "$PID" > /dev/null 2>&1; then
-        echo "El servidor ya está ejecutándose con el PID $PID en http://localhost:$PORT"
+        echo "The server is already running with PID $PID at http://localhost:$PORT"
         exit 0
     else
         rm "$PID_FILE"
     fi
 fi
 
-# Verificar si el puerto ya está en uso
+# Check if port is already in use
 if lsof -Pi :$PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
-    echo "Error: El puerto $PORT ya está en uso por otro proceso."
+    echo "Error: Port $PORT is already in use by another process."
     exit 1
 fi
 
-echo "Iniciando servidor de desarrollo en http://localhost:$PORT..."
+echo "Starting development server at http://localhost:$PORT..."
 cd "$WEBCONTENT_DIR" || exit 1
 nohup python3 -m http.server $PORT > "$LOG_FILE" 2>&1 &
 SERVER_PID=$!
 
 echo $SERVER_PID > "$PID_FILE"
-echo "Servidor iniciado con PID $SERVER_PID. Logs en $LOG_FILE"
+echo "Server started with PID $SERVER_PID. Logs in $LOG_FILE"

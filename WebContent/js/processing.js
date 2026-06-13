@@ -42,7 +42,7 @@ function requestDirections(fromPlace)
 			ambiguities: 'ignore',
 			unit: 'k',
 			routeType: 'fastest',
-			locale: 'es_ES',
+			locale: $('#localeSelector').val() || 'en_US',
 			avoids: ['Toll Road'],
 			narrativeType: 'microformat',
 			enhancedNarrative: false,
@@ -99,14 +99,14 @@ function renderDirections(response)
 					}
 				});
 				
-				var narrative = maneuver.narrative.replace("la rampa", "el carril").replace("ramp", "el carril");
+				var narrative = maneuver.narrative;
 				
 				html += narrative;
 				html += '</div>';
 				
 				map.addManeuver(lon, lat, html, maneuver.iconUrl);
 				
-				//Eliminar los tags de HTML de la narración
+				//Remove HTML tags from the narrative
 				var cleanedNarrative = narrative.replace(/<\/?[^>]+(>|$)/g, "");
 				directions.push({
 					_key: "gp" + index,
@@ -126,8 +126,8 @@ function renderDirections(response)
 		
 		var timeFormatted = dpm.utils.secondsToTimeString(route._totalTime);
 		
-		$('#routeInfo').html('<span class="dataHead">Distancia</span><span>'+ route._totalDistance.toFixed(0) +
-			' km</span><span class="dataHead">Tiempo est.</span><span>'+ timeFormatted + '</span>');	
+		$('#routeInfo').html('<span class="dataHead">Distance</span><span>'+ route._totalDistance.toFixed(0) +
+			' km</span><span class="dataHead">Est. time</span><span>'+ timeFormatted + '</span>');	
 		$('#routeInfo').show();
 		
 		var shapeOptions={
@@ -150,7 +150,7 @@ function renderDirections(response)
 	}
 	else
 	{
-		alert("no encontrado");
+		alert("Not found");
 	}
 }
 
@@ -184,8 +184,8 @@ function renderShape(response)
 		for(var i = 0; i < coordComponents.length; i++){
 		    if(i%2 !== 0){
 	                lon = coordComponents[i];
-					//Añadir 1 de cada N y siempre el último punto
-					//Así la ruta es más "ligera"
+					//Add 1 out of every N points, and always include the last point
+					//This keeps the route file lightweight
 					if(indexLocations % 8 === 0 || i === (coordComponents.length - 1)){
 						locations.push([lon, lat]);
 					}
@@ -205,7 +205,7 @@ function renderShape(response)
 }
 
 
-// Prepara los puntos de ruta (waypoints)
+// Prepare the route points (waypoints)
 function prepareGuidingFile(locations)
 {
 	if(locations && locations.length){		
@@ -215,7 +215,7 @@ function prepareGuidingFile(locations)
 	}
 }
 
-// Prepara los puntos de guiado (guidance-points)
+// Prepare the guidance points
 function prepareDirectionsFile(directions)
 {	
 	if(directions){		
@@ -229,11 +229,11 @@ function setRoute(route)
 	{
 		map.clearNonMapLayers();
 		
-		//Procesar puntos de ruta
+		//Process route points
 		if(route._wayPoints && route._wayPoints.length)
 		{
-			//En la ruta las coordenadas est�n como [lat, lon], pero el mapa usa el formato [lon, lat].
-			//Hay que dar la vuelta a los puntos.
+			//In the route, coordinates are in [lat, lon] format, but the map expects [lon, lat].
+			//We need to swap the coordinates.
 			var points = [];
 			route._wayPoints.forEach(function(point)
 			{
@@ -243,12 +243,12 @@ function setRoute(route)
 			map.centerAt(points[0][0], points[0][1]);
 		}
 		
-		//Procesar puntos de guiado
+		//Process guidance points
 		if(route._guidancePoints && route._guidancePoints.length)
 		{			
 			route._guidancePoints.forEach(function(point)
 			{
-				var html="<div><p>Id: {0}</p><p>{1}</p><p>Radio: {2}</p></div>".format(point._key, point._narrative, point._radius);
+				var html="<div><p>Id: {0}</p><p>{1}</p><p>Radius: {2}</p></div>".format(point._key, point._narrative, point._radius);
 				map.addManeuver(point._point[1], point._point[0], html);
 				map.addRadius(point._point[1], point._point[0], point._radius);
 			});
@@ -315,6 +315,35 @@ $(function()
 	});
 	$("#setRouteInput").on('change', onSetRouteInputChanged);
 	$('#routeInfo').hide();
+
+	// Set language selector default to primary browser language
+	var userLang = (navigator.language || navigator.userLanguage || "en_US").replace('-', '_');
+	if (userLang.length === 2) {
+		var langMap = {
+			'es': 'es_ES',
+			'en': 'en_US',
+			'fr': 'fr_FR',
+			'de': 'de_DE',
+			'it': 'it_IT'
+		};
+		userLang = langMap[userLang.toLowerCase()] || 'en_US';
+	}
+	if ($('#localeSelector option[value="' + userLang + '"]').length > 0) {
+		$('#localeSelector').val(userLang);
+	} else {
+		var prefix = userLang.substring(0, 2).toLowerCase();
+		var matched = false;
+		$('#localeSelector option').each(function() {
+			if ($(this).val().toLowerCase().startsWith(prefix)) {
+				$('#localeSelector').val($(this).val());
+				matched = true;
+				return false;
+			}
+		});
+		if (!matched) {
+			$('#localeSelector').val('en_US');
+		}
+	}
 	
 	map = new dpm.MapCto();
 	map.loadMap();

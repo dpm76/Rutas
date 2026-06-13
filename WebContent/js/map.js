@@ -10,8 +10,8 @@ dpm.MapCto = function()
 dpm.MapCto.DEFAULT_ZOOM = 15;
 
 dpm.MapCto.prototype._transformToWGS84 = function(sphMercatorCoords) {
-	// Transforma desde SphericalMercator a WGS84
-	// Devuelve un OpenLayers.LonLat con el punto transformado
+	// Transform from SphericalMercator to WGS84
+	// Returns an OpenLayers.LonLat with the transformed point
 
 	var clon = sphMercatorCoords.clone();
 	var pointWGS84 = clon.transform(this._sphmProjection, this._wgsProjection);
@@ -20,8 +20,8 @@ dpm.MapCto.prototype._transformToWGS84 = function(sphMercatorCoords) {
 };
 
 dpm.MapCto.prototype._transformToSphM = function(wgsCoords) {
-	// Transforma desde WGS84 a SphericalMercator
-	// Devuelve un OpenLayers.LonLat con el punto transformado
+	// Transform from WGS84 to SphericalMercator
+	// Returns an OpenLayers.LonLat with the transformed point
 	var clon = wgsCoords.clone();
 	var pointSphM = clon.transform(this._wgsProjection, this._sphmProjection);
 
@@ -30,7 +30,7 @@ dpm.MapCto.prototype._transformToSphM = function(wgsCoords) {
 
 dpm.MapCto.prototype.loadMap = function()
 {
-	// Asegurar que las imágenes de OpenLayers tengan la política de referrer correcta
+	// Ensure OpenLayers images have the correct referrer policy
 	if (OpenLayers.Tile && OpenLayers.Tile.Image && OpenLayers.Tile.Image.IMAGE) {
 		OpenLayers.Tile.Image.IMAGE.referrerPolicy = "no-referrer-when-downgrade";
 	}
@@ -65,7 +65,7 @@ dpm.MapCto.prototype.loadMap = function()
 		]
 	});
 
-	//Añadir capa de cartografía
+	//Add cartography layer
 	this._map.addLayer(new OpenLayers.Layer.OSM("osm",
 	[
 		"https://a.tile.openstreetmap.org/${z}/${x}/${y}.png",
@@ -78,19 +78,19 @@ dpm.MapCto.prototype.loadMap = function()
             crossOriginKeyword: null
         }
 	}));
-	//Añadir capa de rutas
+	//Add routes layer
 	this._lineLayer = new OpenLayers.Layer.Vector("Route"); 
 	this._map.addLayer(this._lineLayer);                    
 	
-	//Añadir capa de marcadores
+	//Add markers layer
 	this._markers = new OpenLayers.Layer.Markers("Maneuvers");
 	this._map.addLayer(this._markers);	
 
-	// //Añadir capa de radios
+	// //Add radius layer
 	// this._radiusLayer = new OpenLayers.Layer.Vector("Radius"); 
 	// this._map.addLayer(this._radiusLayer);                    
 	
-	//Posición y zoom por defecto
+	//Default position and zoom
 	var position = this._transformToSphM(new OpenLayers.LonLat(-4.0,41.0));
 	this._map.setCenter(position, dpm.MapCto.DEFAULT_ZOOM);
 	
@@ -104,18 +104,18 @@ dpm.MapCto.prototype.loadMap = function()
 				//latLonEnd.lon=position.lon;
 			},
 			movestart:function(e){
-				//nada que hacer				
+				//nothing to do				
 			}
 	});
 	*/
 	
-	//Añadir controles
+	//Add controls
 	this._map.addControl(new OpenLayers.Control.PanPanel());
 	this._map.addControl(new OpenLayers.Control.DrawFeature(this._lineLayer, OpenLayers.Handler.Path));
 	
 	$(".olControlPanPanel").hide();
 	
-	//Inicializar icono de marcador por defecto
+	//Initialize default marker icon
 	var size = new OpenLayers.Size(24,24);
 	var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
 	this._defaultMarkerIcon = new OpenLayers.Icon('./img/default-marker.png', size, offset);

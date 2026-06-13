@@ -29,13 +29,21 @@
 			</div>
 			<button id="AddWaypointButton">+</button>
 			<span id="buttonsContainer">
-				<button id="CalculateRouteButton">Ruta</button>
+				<select id="localeSelector">
+					<option value="en_US">English (US)</option>
+					<option value="en_GB">English (UK)</option>
+					<option value="es_ES">Español</option>
+					<option value="fr_FR">Français</option>
+					<option value="de_DE">Deutsch</option>
+					<option value="it_IT">Italiano</option>
+				</select>
+				<button id="CalculateRouteButton">Route</button>
 			</span>
 		</div>
 		<span id="routeInfo"></span>
 		<div id="GetFilesContainer">
 			<input id="setRouteInput" type="file"/>			
-			<button id="getRouteButton">Descargar ruta</button>
+			<button id="getRouteButton">Download route</button>
 			<a href="#" id="GetRouteFileLink"></a>			
 		</div>		
 	</div>

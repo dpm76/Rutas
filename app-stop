@@ -1,21 +1,21 @@
 #!/bin/bash
-# Script para detener el servidor local de desarrollo
+# Script to stop the local development server
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PID_FILE="$PROJECT_DIR/.server.pid"
 
 if [ ! -f "$PID_FILE" ]; then
-    echo "No se encontró el archivo de PID ($PID_FILE). ¿El servidor está apagado?"
+    echo "PID file not found ($PID_FILE). Is the server stopped?"
     exit 1
 fi
 
 PID=$(cat "$PID_FILE")
 
 if ps -p "$PID" > /dev/null 2>&1; then
-    echo "Deteniendo el servidor con PID $PID..."
+    echo "Stopping server with PID $PID..."
     kill "$PID"
     
-    # Esperar un momento para verificar que se detuvo
+    # Wait a moment to verify that it stopped
     for i in {1..5}; do
         if ! ps -p "$PID" > /dev/null 2>&1; then
             break
@@ -24,13 +24,13 @@ if ps -p "$PID" > /dev/null 2>&1; then
     done
     
     if ps -p "$PID" > /dev/null 2>&1; then
-        echo "El servidor no respondió a la detención estándar. Forzando cierre..."
+        echo "The server did not respond to standard termination. Forcing shutdown..."
         kill -9 "$PID"
     fi
     
-    echo "Servidor detenido correctamente."
+    echo "Server stopped successfully."
 else
-    echo "El servidor con PID $PID no se encuentra en ejecución."
+    echo "The server with PID $PID is not running."
 fi
 
 rm "$PID_FILE"
